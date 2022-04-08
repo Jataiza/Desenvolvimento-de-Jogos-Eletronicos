@@ -1,0 +1,474 @@
+ Title = "Color Memory Game" 'Título do jogo
+ InitWindow() 'Inicializar a janela e mostra-la
+ InitColour() 'Inicializar a cor
+ BeforeOrAfter() 'Mostrar título com efeito
+ 'fp = File.GetSettingsFilePath( )
+ 
+ For i = Text.GetLength(fp) To 1 step - 1  'Tratamento de nomes na pontuação, leitura de tamaho e posição dos pontos.
+   If Text.GetSubText(fp, i, 1) = "\" Then
+     pos = i
+     i = 1
+   EndIf
+ EndFor
+ 
+ fp = Text.GetSubText(fp,1,pos)
+ fp = fp + "Color Memory Game HIGHSCORE.ARR"  'Arquivo de amazenamento de pontuações
+ ReadHighScore() 'Método de leitura de pontuações
+ 
+ If HC = "" Then 'Verifica se não há pontuações anteriores
+   For i = 1 To 10
+     HC[i] = "********** 0" 'Cria dez posições de pontuação
+   EndFor
+ EndIf
+ ShowHighScore() 'Mostra na tela todas as pontuações
+ 
+ 'Variaveis usadas nos métodos abaixo
+ points = 0
+ life = 3
+ ca = 3
+ cp = 0
+ tp = 600
+ 
+ B[100] = Controls.AddButton(" CONTINUE ", (ww/3) - 50, wh - 70)
+ Controls.HideControl(B[100])
+ B[101] = Controls.AddButton(" E N D ", 2*(ww/3) - 50, wh - 70)
+ Controls.HideControl(B[101])
+ B[102] = Controls.AddButton(" START ", (ww/2) - 50, wh - 70)
+ B[200] = Controls.AddTextBox((ww/2) - 50, 12*40)
+ Controls.HideControl(B[200])
+ 
+ loop = 1
+ 
+ While loop = 1
+   GraphicsWindow.BrushColor = C[Math.GetRandomNumber(9)]
+   Title = "Please click the colour in the correct order!"
+   GraphicsWindow.DrawText((ww-text.GetLength(Title))/2-150, wh-100, Title)
+   GraphicsWindow.BrushColor = "Moccasin"
+   GraphicsWindow.FillRectangle(0,wh-20,ww,20)
+   GraphicsWindow.BrushColor = "SteelBlue"
+   
+   ShowPoints = "Points: "
+   ShowPoints = Text.Append(ShowPoints, points)
+   GraphicsWindow.DrawText(0, wh-20, ShowPoints)
+   
+   ShowLife = "life "
+   ShowLife = Text.Append(ShowLife, life)
+   GraphicsWindow.DrawText(200, wh-20, ShowLife)
+
+  While A[an] <> B[102]
+  EndWhile
+  Controls.HideControl(B[102])
+  
+  While A[an] <> B[101]
+    Init()
+    NewColour()
+    ShowColour()
+    Wait4Answer()
+    ShowResult()
+    
+    If life < 1 Then
+      A[an] = B[101]
+    EndIf
+  EndWhile
+  
+  HighScore()                     'Coloca as pontuações e reseta as variáveis
+  Controls.ShowControl(B[102])
+  points = 0
+  life = 3
+  ca = 3
+  cp = 0
+  tp = 600
+  EndWhile
+    
+    '---------------------------------------------------------------------------------------------------------
+  
+  Sub InitWindow
+    ww = 970 
+    wh = 600
+    Controls.ButtonClicked = OnButtonClicked
+    GraphicsWindow.KeyUp = OnKeyUp
+    GraphicsWindow.Top = 0
+    GraphicsWindow.Left = 0
+    GraphicsWindow.Width = ww 'largura da janela
+    GraphicsWindow.Height = wh 'altura da janela
+    GraphicsWindow.Title = Title
+    GraphicsWindow.BrushColor = "SteelBlue"
+    GraphicsWindow.PenColor = "Black"
+    GraphicsWindow.BackgroundColor = "Moccasin"
+    GraphicsWindow.FontBold = "True"
+    GraphicsWindow.FontName = "Arial"
+    GraphicsWindow.FontSize = 14 
+    GraphicsWindow.Show()
+  EndSub
+  '----------------------------------------------------------------------------------------
+  Sub InitColour
+    C[1] = "Snow"
+    C[2] = "Gray"
+    C[3] = "Yellow"
+    C[4] = "DarkOrange"
+    C[5] = "Red"
+    C[6] = "Seagreen"
+    C[7] = "Purple"
+    C[8] = "Blue"
+    C[9] = "Black"
+    
+    Col[1] = "White"
+    Col[2] = "Gray"
+    Col[3] = "Yellow"
+    Col[4] = "Orange"
+    Col[5] = "Red"
+    Col[6] = "Green"
+    Col[7] = "Violet"
+    Col[8] = "Blue"
+    Col[9] = "Black"
+  EndSub
+  '----------------------------------------------------------------------------------------
+  Sub BeforeOrAfter
+    'Limpa o título antigo e criei posições de shape
+    For i = 1 To 30
+      SH[i] = " "
+      EndFor
+        
+      'Coloca o novo título
+      For i = 1 To Text.GetLength(Title)
+        co = co + 1
+        
+        If co = 10 Then
+          co = 1
+        EndIf
+       
+       GraphicsWindow.BrushColor = C[co] 
+       SH[i] = Shapes.AddText(Text.GetSubText(Title,i,1)) 'pega letra por letra e coloca no vetor SH
+       Shapes.HideShape(SH[i])
+       Shapes.Zoom(SH[i], 4, 4)
+     EndFor
+     
+     sl = Array.GetItemCount(SH)   'Animação lateral, um é colocado em frente o outro
+     For i = 1 To sl
+       y = wh / 2 - 100
+       x = i * 40 - 40
+       Shapes.ShowShape(SH[i])
+       Shapes.Animate(SH[i], x, y, 1500)
+       GraphicsWindow.BackgroundColor = "Moccasin"
+       Program.Delay(400)
+    EndFor   
+    
+    Program.Delay(400)
+    
+    For j = 1 To 2 'Animação vertical indo para cima e para baixo
+      For i = 1 To sl
+        x = i * 50 - 40
+        If Math.Remainder(i, 2) = 0 Then
+          y = GraphicsWindow.Height / 2 - 100 + 30
+        Else
+          y = GraphicsWindow.Height / 2 -100 - 30
+        EndIf
+        Shapes.Animate(SH[i], x, y, 1500)
+       EndFor 
+       Program.Delay(500)
+       EndFor
+       
+       For i = 1 To sl  'Animação de espaçamento
+         x = i * 50 - 40
+         y = GraphicsWindow.Height / 2 - 100
+         Shapes.Animate(SH[i], x, y, 1500)
+       EndFor
+      
+      Program.Delay(200)
+      
+      For i = sl To 1 Step - 1   'Oculta letra por letra de forma decrescente
+        Shapes.HideShape(SH[i])
+        Program.Delay(100)
+      EndFor
+      
+      GraphicsWindow.BrushColor = "Steelblue"
+    EndSub 'Fim da subrotina de animação inicial
+    
+    '----------------------------------------------------------------------------------------
+    
+    'início da subrotina Init
+    Sub Init
+      an = 0
+      cp = cp + 1
+      If Math.Remainder(cp, 3) = 0 Then
+        tp = tp - 10
+        If tp < 200 Then
+          tp = 200
+        EndIf
+        ca = ca + 1
+      EndIf
+      
+      For i = 1 To 9
+        
+        p = (i * 80) - 80  'Cria os 9 botões usando cor e nomenclaturas dos vetores de cores C e Col
+        GraphicsWindow.BrushColor = C[i]
+        B[i] = Controls.AddButton(Col[i], p, wh - 70)
+        Controls.HideControl(B[i])
+      EndFor
+      
+      GraphicsWindow.BrushColor = "Moccasin"  'Coloca o pincel na cor padrão e cria um retângulo de mesma cor
+      GraphicsWindow.BrushColor = "Moccasin"
+      GraphicsWindow.FillRectangle(0,0,ww,wh-100)
+      GraphicsWindow.BrushColor = "SteelBlue"
+      GraphicsWindow.BrushColor = "Black"
+      ShPoints = "Points: "
+      ShPoints = Text.Append(ShPoints, points)
+      GraphicsWindow.DrawText(0, 580,ShPoints)
+    EndSub 'Fim da subrotina inicial de game
+    
+    '----------------------------------------------------------------------------------------
+    
+    Sub NewColour 'Gerando cores aleatórias
+      For i = 1 To ca
+        RC[i] = Math.GetRandomNumber(9)
+        If ca < 5 Then
+          Controls.ShowControl(B[RC[i]])
+        EndIf
+      EndFor
+      
+      If ca >= 5 Then
+        For i = 1 To 9
+          Controls.ShowControl(B[i])
+        EndFor
+      EndIf 
+      
+      GraphicsWindow.BrushColor = "Moccasin"  'Coloca o pincel na cor padrão e cria um retângulo de mesma cor
+      GraphicsWindow.BrushColor = "Moccasin"
+      GraphicsWindow.FillRectangle(0,0,ww,wh-100)
+      GraphicsWindow.BrushColor = "SteelBlue"
+      GraphicsWindow.BrushColor = "Black"
+    EndSub ' fim da escolha aleatória de cores
+    
+    '----------------------------------------------------------------------------------------
+    
+    Sub ShowColour 'Mostra as cores com o auxilio da fumção ShowIt( )
+      For i = 1 To ca
+        GraphicsWindow.BrushColor = C[RC[i]]
+        ShowIt()
+        Program.Delay(tp)
+          GraphicsWindow.BrushColor = "Moccasin"  'Coloca o pincel na cor padrão e cria um retângulo de mesma cor
+          GraphicsWindow.BrushColor = "Moccasin"
+          GraphicsWindow.FillRectangle(0,0,ww,wh-100)
+          GraphicsWindow.BrushColor = "SteelBlue"
+          GraphicsWindow.BrushColor = "Black"
+          Program.Delay(tp)
+        EndFor
+        GraphicsWindow.BrushColor = "SteelBlue"
+      EndSub 'Fim da função de mostrar as cores
+      
+      '----------------------------------------------------------------------------------------
+      
+      Sub ShowIt 'gerador de objetos geométricos
+        g = Math.GetRandomNumber(5)
+        
+        If g = 1 Then
+          x1 = Math.GetRandomNumber(100)
+          y1 = Math.GetRandomNumber(100)
+          x2 = Math.GetRandomNumber(100) + 250
+          y2 = x2
+          x1 = (ww - x2) / 2
+          y1 = (wh - y2) / 2
+          GraphicsWindow.FillRectangle(x1, y1, x2, y2)
+          
+        ElseIf g = 2 Then
+          x1 = Math.GetRandomNumber(100)
+          y1 = Math.GetRandomNumber(100)
+          x2 = Math.GetRandomNumber(100) + 250
+          y2 = Math.GetRandomNumber(100) + 250
+          x1 = (ww - x2) / 2
+          y1 = (wh - y2) / 2
+          GraphicsWindow.FillRectangle(x1, y1, x2, y2)
+          
+        ElseIf g = 3 Then
+          x1 = Math.GetRandomNumber(100)
+          y1 = Math.GetRandomNumber(100)
+          x2 = Math.GetRandomNumber(100) + 250
+          y2 = x2
+          x1 = (ww - x2) / 2
+          y1 = (wh - y2) / 2
+          GraphicsWindow.FillEllipse(x1, y1, x2, y2)
+          
+        ElseIf g = 4 Then
+          x1 = Math.GetRandomNumber(100)
+          y1 = Math.GetRandomNumber(100)
+          x2 = Math.GetRandomNumber(100) + 250
+          y2 = Math.GetRandomNumber(100) + 250
+          x1 = (ww - x2) / 2
+          y1 = (wh - y2) / 2
+          GraphicsWindow.FillEllipse(x1, y1, x2, y2) 
+          
+        Else
+          x1 = Math.GetRandomNumber(100)
+          y1 = Math.GetRandomNumber(100) + 200
+          x2 = Math.GetRandomNumber(100) + 250
+          y2 = Math.GetRandomNumber(100) + 100
+          x3 = y2
+          y3 = x2
+          x1 = (ww - x2) / 2
+          y1 = (wh - y2) / 2
+          GraphicsWindow.FillTriangle(x1, y1, x2, y2, x3, y3)
+        EndIf
+      EndSub 'Fim da criação de objetos geométricos 
+      
+      '----------------------------------------------------------------------------------------
+      
+      Sub Wait4Answer
+        an = 0
+        While an < ca
+        EndWhile
+      EndSub
+      
+      '----------------------------------------------------------------------------------------
+      
+      Sub ShowResult
+        For i = 1 To 9
+          Controls.HideControl(B[i])
+        EndFor
+        
+        For i = 1 To ca
+          ShPoints = i
+          ShPoints = Text.Append(ShPoints, ". ")
+          ShPoints = Text.Append(ShPoints, C[RC[i]])
+          
+          If B[RC[i]] = A[i] Then
+            ShPoints = Text.Append(ShPoints, " correct ")
+            points = points + 10
+          Else
+            ShPoints = Text.Append(ShPoints, " incorrect ")
+            points = points - 15
+            life = life - 1
+          EndIf
+          
+          p = i * 24
+          GraphicsWindow.DrawText(1, p, ShPoints)
+          ShowPandL()
+          EndFor
+          
+          Controls.ShowControl(B[100])
+          Controls.ShowControl(B[101])
+          
+          an = 0
+          While an = 0 
+          EndWhile
+          
+          Controls.HideControl(B[100])
+          Controls.HideControl(B[101])
+          
+          GraphicsWindow.BrushColor = "Moccasin"
+          GraphicsWindow.FillRectangle(0,0,ww, wh-100)
+          GraphicsWindow.BrushColor = "SteelBlue"
+          EndSub
+          
+          '----------------------------------------------------------------------------------------
+          
+          Sub ShowPandL
+            If points < 0 Then
+              points = 0
+            EndIf
+            
+            If life < 0 Then
+              life = 0
+            EndIf
+            
+            GraphicsWindow.BrushColor = "Moccasin"
+            GraphicsWindow.FillRectangle(0,wh-20,ww,20)
+            GraphicsWindow.BrushColor = "SteelBlue"
+            
+            ShowPoints = "Points: "
+            ShowPoints = Text.Append(ShowPoints, points)
+            GraphicsWindow.DrawText(0, wh-20, ShowPoints)
+            
+            ShowLife = "Life: "
+            ShowLife = Text.Append(ShowLife, life)
+            GraphicsWindow.DrawText(200, wh-20, ShowLife)
+            EndSub
+            
+            '----------------------------------------------------------------------------------------
+            
+            Sub HighScore  'Insere já odenando as pontuações, além de tratar os nicknames e pontuações
+              If points > 0 Then
+                ShowHighScore()
+                GraphicsWindow.DrawText(ww/2 - 180, 12 * 40, "Your name ENTER")
+                Controls.ShowControl(B[200])
+                LK = ""
+                While LK <> "Return"
+                  If LKP = 1 Then
+                    LKP = 0
+                    LK = GraphicsWindow.LastKey
+                  EndIf
+                EndWhile
+                
+                LK = ""
+                Controls.HideControl(B[200])
+                yn = Controls.GetTextBoxText(B[200])
+                lenyn = Text.GetLength(yn)
+                While lenyn <> 10
+                  If lenyn > 10 Then
+                    yn = Text.GetSubText(yn,1,10)
+                    lenyn = Text.GetLength(yn)
+                  Else
+                    yn = yn + " "
+                    lenyn = lenyn + 1
+                  EndIf
+                EndWhile
+                
+                lenp = Text.GetLength(points)
+                Fpoints = points
+                For i = 1 To 15 - lenp
+                  Fpoints = " " + Fpoints
+                EndFor
+                
+                NewHC = yn + " " + Fpoints
+                
+                For i = 1 To 10
+                  HCpoints = Text.GetSubText(HC[i],14,15)
+                  If points > HCpoints Then
+                    NI = i
+                    i = 10
+                  EndIf
+                EndFor 
+                
+                For i = 10 To NI Step - 1
+                  HC[i+1] = HC[i]
+                EndFor
+                
+                HC[NI] = NewHC
+              EndIf
+              ShowHighScore()
+              Program.Delay(2000)
+              SaveHighScore()
+              EndSub 'fim da subrotina de inserção e ordenação
+                
+             '----------------------------------------------------------------------------------------  
+                    
+             Sub ShowHighScore   
+               GraphicsWindow.BrushColor = "Moccasin"
+               GraphicsWindow.BrushColor = "Moccasin"
+               GraphicsWindow.FillRectangle(0,0,ww,wh-100)
+               GraphicsWindow.BrushColor = "SteelBlue"
+               GraphicsWindow.PenColor = "Black"
+               GraphicsWindow.DrawText(ww/2 - 90,10, "H I G H S C O R E")
+               For i = 1 To 10
+                 GraphicsWindow.DrawText(ww/2 - 100, i * 40, HC[i])
+                 Program.Delay(100)
+                 EndFor
+               EndSub
+               
+               Sub ReadHighScore
+                 'Função que faria a leitura de um arquivo local com pontuações salvas anteriormente
+               EndSub
+               
+               Sub SaveHighScore
+                 'Função que salvaria em um arquivo local as pontuações dos jogadores
+               EndSub
+               
+               Sub OnButtonClicked
+                 an = an + 1
+                 A[an] = Controls.LastClickedButton
+               EndSub
+               
+               Sub OnKeyUp
+                 LKP = 1
+               EndSub
+               
+               

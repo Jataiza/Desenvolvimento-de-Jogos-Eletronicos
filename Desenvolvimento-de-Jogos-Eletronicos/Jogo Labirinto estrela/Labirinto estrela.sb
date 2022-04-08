@@ -1,0 +1,109 @@
+GameLength = 20 'O jogo começa com uma duração de 20 segundos
+BlockSize = 24 'Tamanho de cada seção do labirinto
+ViewSize = 18 'Número de seções visíveis na tela
+Score = 0 'Um ponto para cada estrela coletada
+
+GraphicsWindow.Height = BlockSize * ViewSize 'Redimensionar a janela exatamente para o tamanho da parte visível do labirinto
+GraphicsWindow.Width = BlockSize * ViewSize
+
+PlayerX = 0 'localização inicial do jogador
+PlayerY = 0
+
+Maze[PlayerX][PlayerY] = "." 'Define que o quadrado no local do jogador deve estar vazio
+GraphicsWindow.FontSize = BlockSize 'Aumenta ou diminiu para deixar os quadrados maiores ou menores.
+GraphicsWindow.keyup = Move 'Mover quando o jogador soltar a tecla direcional e que ele se movimente um toque por vez
+Move() 'Chamar o movimento de desenhar o jogo pela primeira vez, caso contrário ele ficará em branco esperando um toque
+Timer.Interval = 100 'atualização de tempo de jogo decrescendo gradualmente na fração de 1/10
+Timer.Tick = UpdateScore
+Start = Clock.ElapsedMilliseconds 'O jogo tem uma extensão de 20 segundos e recebe meio segundo para cada ponto ganho
+While ((Clock.ElapsedMilliseconds - Start) / 1000) <= (GameLength)'Verifica se o tempo atual é menor ou igual ao tempo máximo
+EndWhile'Faz a contagem regressiva do tempo
+
+Timer.Interval = 1000000 'atualização de pontuação e desligamento do game
+GraphicsWindow.ShowMessage("Final Score: " + Score, "Game Over")'Menssagem recebida ao acabar o tempo: total de pontos ganhos
+Program.End()
+
+Sub Move
+  newX=PlayerX 'Faz uma cópia exata da localização do jogador
+  newY=PlayerY
+  
+  If (GraphicsWindow.LastKey= "up") Then 'Verifica se o jogador esta movimentando,se sim
+  newY = newY - 1
+  ElseIf(GraphicsWindow.LastKey="Down") then
+  newY = newY + 1
+ ElseIf(GraphicsWindow.LastKey="Left") then
+  newX = newX -1
+ ElseIf(GraphicsWindow.LastKey ="Right") then
+  newX = newX - 1
+  EndIf
+  
+  chkX = newX 'Definir  localização para nova posição
+  chkY = newY
+  
+  CheckMazeAtLocation() 'O quadrado do labirinto pode não  ter sido criado ainda
+  
+  if (Maze[newX][newY] <> "■") Then 'Só atualiza a posição  se não houver um quadrado(parede) na posição.
+    If(Maze [newX] [newY] ="☆") Then 'Se o jogador posar em uma estrela ele irá marcar pontos
+      Score = Score + 1 ' Ele ganha um ponto
+      GameLength = GameLength + 0.5
+      Maze[newX][newY]="." 'Remove a estrela e coloca um ponto vazio
+    EndIf
+    
+    PlayerX= newX ' atualiza a posiçao do jogador
+    PlayerY= newY
+    
+    for y = 0 To(ViewSize-1) 'Desenha uma seções de 18x18
+      For x= 0 To (ViewSize-1)
+        chkX=(x - 9 + PlayerX)'Transforma x e y em um local relativo ao jogador
+        chky=(y - 9 + PlayerY)
+        checkMazeAtLocation() 'O quadrado do labirinto pode não  ter sido criado ainda
+        
+        GraphicsWindow.BrushColor = "MidnightBlue" 'Limpa os quadrados indivudualmente,pisca  menos que o Clear()
+        GraphicsWindow.FillRectangle (x* GraphicsWindow.FontSize,y * GraphicsWindow.FontSize, BlockSize,GraphicsWindow.FontSize)
+        GraphicsWindow.BrushColor="PaleGreen"
+        GraphicsWindow.DrawText(x * GraphicsWindow.FontSize,y * GraphicsWindow.FontSize, Maze[chkX][chkY])
+      EndFor
+    EndFor
+    
+    GraphicsWindow.DrawText(9 * GraphicsWindow.FontSize, 9* GraphicsWindow.FontSize,"☻") 'Cria o jogador
+    UpdateScore() 'Desenha a pontuação na barra de título
+  EndIf
+EndSub
+
+Sub  CheckMazeAtLocation ' Verifica se o labirtinto está vazio em um local, se estiver,gera aleatoriamente uma peça no local
+  found ="False"
+  If (Maze[chkX][chkY]= "☆" Or Maze[chkX][chkY]= "■" Or Maze[chkX][chky] =".") Then
+    found="True"
+  EndIf
+  
+  If (found ="False") Then 
+    If (Math.GetRandomNumber(100)=1) Then
+      Maze[chkX][chkY] ="☆" 'Estrela colocada no mapa com a possibilidade de 1 para 100
+    ElseIf (Math.getRandomNumber(4) =1)Then
+      Maze[chkX][chkY]="■"
+    Else
+      Maze[chkX][chkY]="."
+    EndIf
+  EndIf
+EndSub
+
+Sub UpDateScore 'Desenha a pontuação na barra de titulo
+  status="Score" + Score
+  status= status +"--Time Remaining:"
+  elapsedSeconds=((Clock.ElapsedMilliseconds -Start)/1000)
+  timeLeft=GameLength- elapsedSeconds
+  status= status + Math.Round(timeLeft * 10) / 10 ' Aredondamento de 1/10 segundos
+  GraphicsWindow.Title =status
+EndSub
+
+
+
+
+
+
+
+
+
+
+
+

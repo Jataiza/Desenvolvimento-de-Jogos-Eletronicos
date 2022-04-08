@@ -1,0 +1,142 @@
+Start()
+Controls.ButtonClicked = OnButtonClicked  
+Timer.Tick = Timer1
+
+Sub Start
+  GraphicsWindow.Title = "Clique no botão!"
+  GraphicsWindow.Height = 720
+  GraphicsWindow.Width = 1280
+  GraphicsWindow.CanResize = 1
+  GraphicsWindow.FontName = "Arial"
+  GraphicsWindow.FontBold = 0
+  Level1()
+EndSub
+
+Sub Level1
+  a = 0
+  P1 = Math.GetRandomNumber(1280)
+  P2 = Math.GetRandomNumber(720)
+  GraphicsWindow.BrushColor = "Black"
+  GraphicsWindow.FontSize = 20
+  GraphicsWindow.BackgroundColor = "Red"
+  Level1B = Controls.AddButton("CLIQUE EM MIM!!!!", P1, P2)
+  Controls.SetSize(Level1B, 200, 60)
+  Move1()
+EndSub
+
+Sub Level2
+  a = 1
+  P1 = Math.GetRandomNumber(1280)
+  P2 = Math.GetRandomNumber(720)
+  GraphicsWindow.BrushColor = "Magenta"
+  Controls.HideControl(Level1B)
+  GraphicsWindow.FontSize = 10
+  GraphicsWindow.BackgroundColor = "Blue"
+  Level2B = Controls.AddButton("CLIQUE EM MIM!!!!", P1, P2)
+  Controls.SetSize(Level2B, 100, 30)
+  Move2()
+EndSub
+
+Sub Level3
+  a = 2
+  P1 = Math.GetRandomNumber(1280)
+  P2 = Math.GetRandomNumber(720)
+  GraphicsWindow.BrushColor = "Brown"
+  Controls.HideControl(Level2B)
+  GraphicsWindow.FontSize = 5
+  GraphicsWindow.BackgroundColor = "Green"
+  Level3B = Controls.AddButton("CLIQUE EM MIM!!!!", P1, P2)
+  Controls.SetSize(Level3B, 50, 15)
+  Move3()
+EndSub
+
+Sub Level4
+  a = 3
+  P1 = Math.GetRandomNumber(1280)
+  P2 = Math.GetRandomNumber(720)
+  GraphicsWindow.BrushColor = "Yellow"
+  Controls.HideControl(Level3B)
+  GraphicsWindow.FontSize = 3
+  GraphicsWindow.BackgroundColor = "Orange"
+  Level4B = Controls.AddButton("CLIQUE EM MIM!!!!", P1, P2)
+  Controls.SetSize(Level4B, 25, 10)
+  Move4()
+EndSub
+
+Sub Move1
+  x = Math.GetRandomNumber(1280)
+  y = Math.GetRandomNumber(720)
+  Shapes.Animate(Level1B, x, y, 9000)
+  Timer.Interval = 9010
+EndSub
+
+Sub Move2
+  x = Math.GetRandomNumber(1280)
+  y = Math.GetRandomNumber(720)
+  Shapes.Animate(Level2B, x, y, 5000)
+  Timer.Interval = 5010
+EndSub
+
+Sub Move3
+  x = Math.GetRandomNumber(1280)
+  y = Math.GetRandomNumber(720)
+  Shapes.Animate(Level3B, x, y, 1200)
+  Timer.Interval = 1210
+EndSub
+
+Sub Move4
+  x = Math.GetRandomNumber(1280)
+  y = Math.GetRandomNumber(720)
+  Shapes.Animate(Level4B, x, y, 500)
+  Timer.Interval = 510
+EndSub
+
+Sub Timer1
+  If (a = 0) Then
+    r = Math.GetRandomNumber(1280)
+    s = Math.GetRandomNumber(720)
+    Shapes.Animate(Level1B, r, s, 9000)
+    
+  ElseIf (a = 1) Then
+    r = Math.GetRandomNumber(1280)
+    s = Math.GetRandomNumber(720)
+    Shapes.Animate(Level2B, r , s, 5000)
+    
+  ElseIf (a = 2) Then
+    r = Math.GetRandomNumber(1280)
+    s = Math.GetRandomNumber(720)
+    Shapes.Animate(Level3B, r, s, 1200)
+    
+  ElseIf (a = 3) Then
+    r = Math.GetRandomNumber(1280)
+    s = Math.GetRandomNumber(720)
+    Shapes.Animate(Level4B, r, s, 550)
+  EndIf
+EndSub
+
+Sub OnButtonClicked
+  LastButton = Controls.LastClickedButton
+  
+  If (LastButton = Level1B) Then
+    Sound.PlayBellRing()
+    GraphicsWindow.ShowMessage ("Parabéns!!! Pronto para mais? Boa sorte!", "2º nível")
+    Level2()
+    
+  ElseIf (LastButton = Level2B) Then
+    Sound.PlayBellRing()
+    GraphicsWindow.ShowMessage ("Parabéns!!! Pronto para mais? Boa sorte!", "3º nível")
+    Level3()
+    
+  ElseIf (LastButton = Level3B) Then
+  Sound.PlayBellRing()
+  GraphicsWindow.ShowMessage ("Parabéns!!! Pronto para mais? Boa sorte!", "4º nível")
+  Level4()
+  
+  Elseif (LastButton = Level4B) Then
+  Sound.PlayBellRing()
+  GraphicsWindow.ShowMessage ("Uaau, ótimos reflexos!!", "Não existem mais níveis... Você ganhou!!!")
+  Program.End()
+  
+  EndIf
+  EndSub
+  

@@ -1,4 +1,4 @@
-<h1>Desenvolvimento-de-Jogos-Eletronico🕹️</h1>
+<h1>Desenvolvimento-de-Jogos-Eletrônico🕹️</h1>
 <p>O curso de desenvolvimento de jogos teve como foco a criação de games para plataforma desktop e neste repositorio você encontra alguns jogos desenvolvido no decorre do curso.</p>
 
 <p aling="center"><img src="/Desenvolvimento-de-Jogos-Eletronicos/assets/Game.gif"></p>

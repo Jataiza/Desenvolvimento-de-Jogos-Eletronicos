@@ -12,6 +12,8 @@
 
 <h3>✨Tecnologias aprendidas </h3>
 
-<li>CONTRUCT 3  </li>
-<li>SMALL BASIC </li>
-<li>JAVA SCRIPT </li>
+<li> CONTRUCT 3  </li>
+<li> SCRATCH<li>
+<li> SMALL BASIC </li>
+<li> JAVA SCRIPT </li>
+
